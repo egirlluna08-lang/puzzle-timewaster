@@ -201,7 +201,7 @@
         </div>
 
         <div class="controls">
-            <button class="btn" onclick="shufflePuzzle()">Shuffle</button>
+            <button class="btn" id="shuffleBtn" onclick="shufflePuzzle()">Start Puzzle</button>
         </div>
 
         <div class="puzzle-grid" id="puzzleGrid"></div>
@@ -233,13 +233,18 @@
         puzzleImage.src = 'puzzle-image.jpg';
 
         function initPuzzle() {
-            // Create tiles array (0 = empty) - START SOLVED
-            tiles = Array.from({length: TOTAL_TILES}, (_, i) => i);
-            emptyPos = TOTAL_TILES - 1;
+            // Create tiles array - START SOLVED WITH ALL 16 TILES
+            tiles = Array.from({length: TOTAL_TILES}, (_, i) => i + 1);
+            emptyPos = -1; // No empty space when solved
             renderPuzzle();
+            updateButtonText();
         }
 
         function shuffleWithSolve() {
+            // Add empty space and shuffle
+            tiles[TOTAL_TILES - 1] = 0;
+            emptyPos = TOTAL_TILES - 1;
+            
             // Shuffle but ensure puzzle is solvable
             for (let i = 0; i < 100; i++) {
                 const neighbors = getNeighbors(emptyPos);
@@ -269,9 +274,11 @@
                     tile.style.backgroundPosition = `${offsetX}% ${offsetY}%`;
                     tile.style.backgroundSize = '500px 500px';
 
-                    tile.classList.add('movable');
-                    tile.addEventListener('click', () => moveTile(index));
-                    tile.title = 'Click to move';
+                    if (gameWon === false && emptyPos !== -1) {
+                        tile.classList.add('movable');
+                        tile.addEventListener('click', () => moveTile(index));
+                        tile.title = 'Click to move';
+                    }
                 }
 
                 grid.appendChild(tile);
@@ -281,6 +288,7 @@
         }
 
         function getNeighbors(pos) {
+            if (pos === -1) return [];
             const neighbors = [];
             const row = Math.floor(pos / GRID_SIZE);
             const col = pos % GRID_SIZE;
@@ -294,7 +302,7 @@
         }
 
         function moveTile(index) {
-            if (gameWon) return;
+            if (gameWon || emptyPos === -1) return;
 
             const neighbors = getNeighbors(emptyPos);
             if (neighbors.includes(index)) {
@@ -311,14 +319,27 @@
             emptyPos = pos2;
         }
 
+        function updateButtonText() {
+            const btn = document.getElementById('shuffleBtn');
+            if (gameWon) {
+                btn.textContent = 'Play Again';
+            } else if (emptyPos === -1) {
+                btn.textContent = 'Start Puzzle';
+            } else {
+                btn.textContent = 'Reset';
+            }
+        }
+
         function shufflePuzzle() {
             if (gameWon) {
                 location.reload();
                 return;
             }
             moves = 0;
+            gameWon = false;
             shuffleWithSolve();
             renderPuzzle();
+            updateButtonText();
         }
 
         function checkWin() {
@@ -328,8 +349,9 @@
                 if (tiles[i] !== i + 1) return;
             }
 
-            if (tiles[TOTAL_TILES - 1] === 0) {
+            if (tiles[TOTAL_TILES - 1] === 0 && emptyPos !== -1) {
                 gameWon = true;
+                updateButtonText();
                 document.getElementById('victoryModal').classList.add('show');
             }
         }
