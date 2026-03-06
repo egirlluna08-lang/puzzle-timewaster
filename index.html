@@ -15,21 +15,12 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
             padding: 20px;
         }
 
         .container {
-            max-width: 900px;
-            width: 100%;
-            background: rgba(30, 30, 50, 0.95);
-            border-radius: 20px;
-            padding: 30px;
-            border: 2px solid #ff1493;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
         .header {
@@ -49,77 +40,14 @@
             font-weight: 600;
         }
 
-        .game-area {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin-bottom: 20px;
-        }
-
-        .puzzle-board {
-            background: rgba(0, 0, 0, 0.3);
-            border: 2px dashed #ff1493;
-            border-radius: 12px;
-            padding: 10px;
-            min-height: 400px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .puzzle-board canvas {
-            max-width: 100%;
-            display: block;
-            margin: 0 auto;
-        }
-
-        .pieces-container {
-            background: rgba(0, 0, 0, 0.3);
-            border: 2px solid #ff1493;
-            border-radius: 12px;
-            padding: 15px;
-            min-height: 400px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            align-content: flex-start;
-            overflow-y: auto;
-        }
-
-        .piece {
-            position: relative;
-            cursor: grab;
-            user-select: none;
-            background: white;
-            border-radius: 4px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-            transition: transform 0.2s;
-        }
-
-        .piece:hover {
-            transform: scale(1.05);
-        }
-
-        .piece canvas {
-            display: block;
-            border-radius: 4px;
-        }
-
-        .info {
-            background: rgba(255, 20, 147, 0.1);
-            border: 1px solid #ff1493;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 20px;
-            color: #fff;
-            font-size: 14px;
-            text-align: center;
-        }
-
         .progress {
             background: rgba(255, 20, 147, 0.2);
             border-radius: 8px;
             padding: 10px;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .progress-bar {
@@ -128,6 +56,7 @@
             background: rgba(0, 0, 0, 0.3);
             border-radius: 4px;
             overflow: hidden;
+            margin-bottom: 5px;
         }
 
         .progress-fill {
@@ -140,8 +69,59 @@
         .progress-text {
             font-size: 12px;
             color: #ff1493;
-            margin-top: 5px;
             text-align: center;
+        }
+
+        .game-wrapper {
+            position: relative;
+            background: rgba(30, 30, 50, 0.95);
+            border: 2px solid #ff1493;
+            border-radius: 20px;
+            padding: 30px;
+            min-height: 800px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .board-area {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.3);
+            border: 3px dashed #ff1493;
+            border-radius: 12px;
+            top: 30px;
+            left: 30px;
+            width: 450px;
+            height: 500px;
+        }
+
+        .board-canvas {
+            border-radius: 12px;
+            cursor: default;
+        }
+
+        .pieces-area {
+            margin-left: 510px;
+            min-height: 600px;
+            position: relative;
+        }
+
+        .piece {
+            position: absolute;
+            cursor: grab;
+            user-select: none;
+            transition: box-shadow 0.2s;
+            border-radius: 4px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        .piece:hover {
+            box-shadow: 0 6px 16px rgba(255, 20, 147, 0.5);
+            z-index: 100;
+        }
+
+        .piece.placed {
+            cursor: default;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            opacity: 0.9;
         }
 
         .victory-modal {
@@ -152,7 +132,7 @@
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.8);
-            z-index: 1000;
+            z-index: 2000;
             align-items: center;
             justify-content: center;
         }
@@ -211,22 +191,24 @@
             transform: translateY(-2px);
         }
 
-        @media (max-width: 768px) {
-            .game-area {
-                grid-template-columns: 1fr;
+        @media (max-width: 1024px) {
+            .board-area {
+                position: static;
+                width: 100%;
+                height: 400px;
+                margin-bottom: 30px;
             }
 
-            .header h1 {
-                font-size: 24px;
+            .pieces-area {
+                margin-left: 0;
+                display: flex;
+                flex-wrap: wrap;
+                gap: 20px;
+                justify-content: center;
             }
 
-            .container {
-                padding: 20px;
-            }
-
-            .puzzle-board,
-            .pieces-container {
-                min-height: 300px;
+            .game-wrapper {
+                min-height: auto;
             }
         }
     </style>
@@ -238,10 +220,6 @@
             <p>Complete the puzzle to continue wasting time~</p>
         </div>
 
-        <div class="info">
-            Drag puzzle pieces from the right and place them on the board. Pieces will snap into place when correct!
-        </div>
-
         <div class="progress">
             <div class="progress-bar">
                 <div class="progress-fill" id="progressFill"></div>
@@ -251,11 +229,11 @@
             </div>
         </div>
 
-        <div class="game-area">
-            <div class="puzzle-board">
-                <canvas id="boardCanvas"></canvas>
+        <div class="game-wrapper">
+            <div class="board-area">
+                <canvas id="boardCanvas" class="board-canvas"></canvas>
             </div>
-            <div class="pieces-container" id="piecesContainer"></div>
+            <div class="pieces-area" id="piecesArea"></div>
         </div>
     </div>
 
@@ -268,16 +246,19 @@
     </div>
 
     <script>
-        const GRID_SIZE = 4; // 4x4 puzzle = 16 pieces
-        const BOARD_WIDTH = 400;
-        const BOARD_HEIGHT = 400;
+        const GRID_SIZE = 4;
+        const BOARD_WIDTH = 450;
+        const BOARD_HEIGHT = 500;
+        const PIECE_SIZE = BOARD_WIDTH / GRID_SIZE;
 
         let imageLoaded = false;
         let puzzleImage = new Image();
         let pieces = [];
         let placedPieces = new Set();
+        let draggedPiece = null;
+        let dragOffsetX = 0;
+        let dragOffsetY = 0;
 
-        // Load the image
         puzzleImage.onload = function() {
             imageLoaded = true;
             initializePuzzle();
@@ -285,22 +266,16 @@
         puzzleImage.src = 'puzzle-image.jpg';
 
         function initializePuzzle() {
-            // Create puzzle pieces
-            const pieceWidth = BOARD_WIDTH / GRID_SIZE;
-            const pieceHeight = BOARD_HEIGHT / GRID_SIZE;
-
+            // Create puzzle pieces with random positions
             for (let row = 0; row < GRID_SIZE; row++) {
                 for (let col = 0; col < GRID_SIZE; col++) {
                     const piece = {
                         id: `piece-${row}-${col}`,
                         gridRow: row,
                         gridCol: col,
-                        x: Math.random() * (window.innerWidth - 150),
-                        y: Math.random() * (window.innerHeight - 150),
-                        isDragging: false,
-                        isPlaced: false,
-                        dragOffsetX: 0,
-                        dragOffsetY: 0
+                        x: Math.random() * 500 + 500,
+                        y: Math.random() * 500 + 100,
+                        isPlaced: false
                     };
                     pieces.push(piece);
                 }
@@ -309,109 +284,111 @@
             // Shuffle pieces
             pieces.sort(() => Math.random() - 0.5);
 
-            // Draw puzzle pieces
+            // Draw initial state
             renderPieces();
             drawBoard();
         }
 
         function renderPieces() {
-            const container = document.getElementById('piecesContainer');
+            const container = document.getElementById('piecesArea');
             container.innerHTML = '';
 
-            const pieceWidth = BOARD_WIDTH / GRID_SIZE;
-            const pieceHeight = BOARD_HEIGHT / GRID_SIZE;
-
-            pieces.forEach((piece, index) => {
-                if (piece.isPlaced) return;
-
+            pieces.forEach((piece) => {
                 const pieceCanvas = document.createElement('canvas');
-                pieceCanvas.width = pieceWidth + 10;
-                pieceCanvas.height = pieceHeight + 10;
-                pieceCanvas.className = 'piece';
+                pieceCanvas.width = PIECE_SIZE;
+                pieceCanvas.height = PIECE_SIZE;
+                pieceCanvas.className = `piece ${piece.isPlaced ? 'placed' : ''}`;
                 pieceCanvas.id = piece.id;
+                pieceCanvas.style.left = piece.x + 'px';
+                pieceCanvas.style.top = piece.y + 'px';
 
                 const ctx = pieceCanvas.getContext('2d');
 
-                // Draw piece with border
-                ctx.fillStyle = '#f0f0f0';
-                ctx.fillRect(0, 0, pieceWidth + 10, pieceHeight + 10);
-                ctx.strokeStyle = '#ddd';
-                ctx.lineWidth = 1;
-                ctx.strokeRect(0, 0, pieceWidth + 10, pieceHeight + 10);
+                // Draw image portion (no white border)
+                const srcX = piece.gridCol * PIECE_SIZE;
+                const srcY = piece.gridRow * PIECE_SIZE;
 
-                // Draw image portion
-                const srcX = piece.gridCol * pieceWidth;
-                const srcY = piece.gridRow * pieceHeight;
+                // Scale image to fill the puzzle size
+                const scaledImageWidth = (puzzleImage.width / GRID_SIZE) * GRID_SIZE;
+                const scaledImageHeight = (puzzleImage.height / GRID_SIZE) * GRID_SIZE;
 
                 ctx.drawImage(
                     puzzleImage,
-                    srcX, srcY, pieceWidth, pieceHeight,
-                    5, 5, pieceWidth, pieceHeight
+                    srcX,
+                    srcY,
+                    puzzleImage.width / GRID_SIZE,
+                    puzzleImage.height / GRID_SIZE,
+                    0,
+                    0,
+                    PIECE_SIZE,
+                    PIECE_SIZE
                 );
 
-                // Add shadow
-                ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
-                ctx.shadowBlur = 5;
-                ctx.shadowOffsetX = 2;
-                ctx.shadowOffsetY = 2;
-
                 // Mouse events
-                pieceCanvas.addEventListener('mousedown', (e) => startDrag(e, index));
-                pieceCanvas.addEventListener('touchstart', (e) => startDrag(e, index));
+                pieceCanvas.addEventListener('mousedown', startDrag);
+                pieceCanvas.addEventListener('touchstart', startDrag);
 
                 container.appendChild(pieceCanvas);
             });
         }
 
-        function startDrag(e, pieceIndex) {
-            if (pieces[pieceIndex].isPlaced) return;
+        function startDrag(e) {
+            const canvas = e.target;
+            const piece = pieces.find(p => p.id === canvas.id);
 
-            const piece = pieces[pieceIndex];
-            const rect = e.target.getBoundingClientRect();
+            if (!piece || piece.isPlaced) return;
 
-            piece.isDragging = true;
-            piece.dragOffsetX = e.clientX - rect.left;
-            piece.dragOffsetY = e.clientY - rect.top;
+            draggedPiece = piece;
+            const rect = canvas.getBoundingClientRect();
+            dragOffsetX = e.clientX - rect.left;
+            dragOffsetY = e.clientY - rect.top;
+
+            canvas.style.cursor = 'grabbing';
 
             document.addEventListener('mousemove', movePiece);
-            document.addEventListener('mouseup', () => stopDrag(pieceIndex));
+            document.addEventListener('mouseup', stopDrag);
             document.addEventListener('touchmove', movePiece);
-            document.addEventListener('touchend', () => stopDrag(pieceIndex));
+            document.addEventListener('touchend', stopDrag);
         }
 
         function movePiece(e) {
-            pieces.forEach((piece) => {
-                if (!piece.isDragging) return;
-                piece.x = e.clientX - piece.dragOffsetX;
-                piece.y = e.clientY - piece.dragOffsetY;
-            });
+            if (!draggedPiece) return;
+
+            draggedPiece.x = e.clientX - dragOffsetX;
+            draggedPiece.y = e.clientY - dragOffsetY;
+
+            renderPieces();
         }
 
-        function stopDrag(pieceIndex) {
-            const piece = pieces[pieceIndex];
-            piece.isDragging = false;
+        function stopDrag(e) {
+            if (!draggedPiece) return;
 
-            // Check if piece is over the board
-            const boardRect = document.getElementById('boardCanvas').getBoundingClientRect();
-            const pieceWidth = BOARD_WIDTH / GRID_SIZE;
-            const pieceHeight = BOARD_HEIGHT / GRID_SIZE;
+            const boardArea = document.querySelector('.board-area');
+            const boardRect = boardArea.getBoundingClientRect();
 
-            const boardX = boardRect.left;
-            const boardY = boardRect.top;
+            const correctX = boardRect.left + draggedPiece.gridCol * PIECE_SIZE;
+            const correctY = boardRect.top + draggedPiece.gridRow * PIECE_SIZE;
 
-            const correctX = boardX + piece.gridCol * pieceWidth;
-            const correctY = boardY + piece.gridRow * pieceHeight;
+            const pieceRect = document.getElementById(draggedPiece.id).getBoundingClientRect();
+            const pieceX = pieceRect.left;
+            const pieceY = pieceRect.top;
 
-            // Snap to grid if close enough (tolerance: 30px)
+            // Snap if close enough (50px tolerance)
             if (
-                Math.abs(piece.x - correctX) < 30 &&
-                Math.abs(piece.y - correctY) < 30
+                Math.abs(pieceX - correctX) < 50 &&
+                Math.abs(pieceY - correctY) < 50
             ) {
-                piece.isPlaced = true;
-                placedPieces.add(piece.id);
-                piece.x = correctX;
-                piece.y = correctY;
+                draggedPiece.isPlaced = true;
+                placedPieces.add(draggedPiece.id);
+                draggedPiece.x = correctX - boardArea.getBoundingClientRect().left;
+                draggedPiece.y = correctY - boardArea.getBoundingClientRect().top;
             }
+
+            draggedPiece = null;
+            document.removeEventListener('mousemove', movePiece);
+            document.removeEventListener('mouseup', stopDrag);
+            document.removeEventListener('touchmove', movePiece);
+            document.removeEventListener('touchend', stopDrag);
 
             updateProgress();
             renderPieces();
@@ -425,28 +402,25 @@
             canvas.width = BOARD_WIDTH;
             canvas.height = BOARD_HEIGHT;
 
-            // Draw background grid
+            // Draw background
             ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
             ctx.fillRect(0, 0, BOARD_WIDTH, BOARD_HEIGHT);
 
-            const pieceWidth = BOARD_WIDTH / GRID_SIZE;
-            const pieceHeight = BOARD_HEIGHT / GRID_SIZE;
-
-            // Draw grid lines
-            ctx.strokeStyle = 'rgba(255, 20, 147, 0.2)';
+            // Draw grid lines (faint)
+            ctx.strokeStyle = 'rgba(255, 20, 147, 0.15)';
             ctx.lineWidth = 1;
 
             for (let i = 0; i <= GRID_SIZE; i++) {
-                // Vertical lines
+                // Vertical
                 ctx.beginPath();
-                ctx.moveTo(i * pieceWidth, 0);
-                ctx.lineTo(i * pieceWidth, BOARD_HEIGHT);
+                ctx.moveTo(i * PIECE_SIZE, 0);
+                ctx.lineTo(i * PIECE_SIZE, BOARD_HEIGHT);
                 ctx.stroke();
 
-                // Horizontal lines
+                // Horizontal
                 ctx.beginPath();
-                ctx.moveTo(0, i * pieceHeight);
-                ctx.lineTo(BOARD_WIDTH, i * pieceHeight);
+                ctx.moveTo(0, i * PIECE_SIZE);
+                ctx.lineTo(BOARD_WIDTH, i * PIECE_SIZE);
                 ctx.stroke();
             }
 
@@ -454,25 +428,28 @@
             pieces.forEach((piece) => {
                 if (!piece.isPlaced) return;
 
-                const srcX = piece.gridCol * pieceWidth;
-                const srcY = piece.gridRow * pieceHeight;
+                const srcX = piece.gridCol * PIECE_SIZE;
+                const srcY = piece.gridRow * PIECE_SIZE;
 
                 ctx.drawImage(
                     puzzleImage,
-                    srcX, srcY, pieceWidth, pieceHeight,
-                    piece.gridCol * pieceWidth,
-                    piece.gridRow * pieceHeight,
-                    pieceWidth,
-                    pieceHeight
+                    srcX,
+                    srcY,
+                    puzzleImage.width / GRID_SIZE,
+                    puzzleImage.height / GRID_SIZE,
+                    piece.gridCol * PIECE_SIZE,
+                    piece.gridRow * PIECE_SIZE,
+                    PIECE_SIZE,
+                    PIECE_SIZE
                 );
             });
 
-            // Draw border
+            // Border
             ctx.strokeStyle = '#ff1493';
             ctx.lineWidth = 3;
             ctx.strokeRect(0, 0, BOARD_WIDTH, BOARD_HEIGHT);
 
-            // Check for victory
+            // Check victory
             if (placedPieces.size === pieces.length) {
                 showVictory();
             }
@@ -488,7 +465,6 @@
             document.getElementById('victoryModal').classList.add('show');
         }
 
-        // Initialize when page loads
         window.addEventListener('load', () => {
             if (!imageLoaded) {
                 setTimeout(() => {
