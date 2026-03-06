@@ -233,9 +233,9 @@
         puzzleImage.src = 'puzzle-image.jpg';
 
         function initPuzzle() {
-            // Create tiles array (0 = empty)
+            // Create tiles array (0 = empty) - START SOLVED
             tiles = Array.from({length: TOTAL_TILES}, (_, i) => i);
-            shuffleWithSolve();
+            emptyPos = TOTAL_TILES - 1;
             renderPuzzle();
         }
 
