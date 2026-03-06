@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MissTimewaster Puzzle</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background: rgba(30, 30, 50, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            border: 2px solid #ff1493;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #ff1493;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .game-area {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 20px;
+        }
+
+        .puzzle-board {
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px dashed #ff1493;
+            border-radius: 12px;
+            padding: 10px;
+            min-height: 400px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .puzzle-board canvas {
+            max-width: 100%;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .pieces-container {
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid #ff1493;
+            border-radius: 12px;
+            padding: 15px;
+            min-height: 400px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-content: flex-start;
+            overflow-y: auto;
+        }
+
+        .piece {
+            position: relative;
+            cursor: grab;
+            user-select: none;
+            background: white;
+            border-radius: 4px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s;
+        }
+
+        .piece:hover {
+            transform: scale(1.05);
+        }
+
+        .piece canvas {
+            display: block;
+            border-radius: 4px;
+        }
+
+        .info {
+            background: rgba(255, 20, 147, 0.1);
+            border: 1px solid #ff1493;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: #fff;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .progress {
+            background: rgba(255, 20, 147, 0.2);
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 15px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff1493 0%, #ff69b4 100%);
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .progress-text {
+            font-size: 12px;
+            color: #ff1493;
+            margin-top: 5px;
+            text-align: center;
+        }
+
+        .victory-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .victory-modal.show {
+            display: flex;
+        }
+
+        .victory-content {
+            background: rgba(30, 30, 50, 0.98);
+            border: 2px solid #ff1493;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            max-width: 500px;
+            box-shadow: 0 20px 60px rgba(255, 20, 147, 0.5);
+            animation: pop 0.4s ease;
+        }
+
+        @keyframes pop {
+            from {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .victory-content h2 {
+            font-size: 32px;
+            color: #ff1493;
+            margin-bottom: 10px;
+        }
+
+        .victory-content p {
+            color: white;
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+
+        .victory-btn {
+            background: linear-gradient(135deg, #ff1493 0%, #ff69b4 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .victory-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .game-area {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .container {
+                padding: 20px;
+            }
+
+            .puzzle-board,
+            .pieces-container {
+                min-height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>MissTimewaster Puzzle 🧩</h1>
+            <p>Complete the puzzle to continue wasting time~</p>
+        </div>
+
+        <div class="info">
+            Drag puzzle pieces from the right and place them on the board. Pieces will snap into place when correct!
+        </div>
+
+        <div class="progress">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text">
+                <span id="progressText">0</span>% complete
+            </div>
+        </div>
+
+        <div class="game-area">
+            <div class="puzzle-board">
+                <canvas id="boardCanvas"></canvas>
+            </div>
+            <div class="pieces-container" id="piecesContainer"></div>
+        </div>
+    </div>
+
+    <div class="victory-modal" id="victoryModal">
+        <div class="victory-content">
+            <h2>You Did It! 💋</h2>
+            <p>Well done, you've earned some time wasted with me~ such a good boy</p>
+            <button class="victory-btn" onclick="location.reload()">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        const GRID_SIZE = 4; // 4x4 puzzle = 16 pieces
+        const BOARD_WIDTH = 400;
+        const BOARD_HEIGHT = 400;
+
+        let imageLoaded = false;
+        let puzzleImage = new Image();
+        let pieces = [];
+        let placedPieces = new Set();
+
+        // Load the image
+        puzzleImage.onload = function() {
+            imageLoaded = true;
+            initializePuzzle();
+        };
+        puzzleImage.src = 'puzzle-image.jpg';
+
+        function initializePuzzle() {
+            // Create puzzle pieces
+            const pieceWidth = BOARD_WIDTH / GRID_SIZE;
+            const pieceHeight = BOARD_HEIGHT / GRID_SIZE;
+
+            for (let row = 0; row < GRID_SIZE; row++) {
+                for (let col = 0; col < GRID_SIZE; col++) {
+                    const piece = {
+                        id: `piece-${row}-${col}`,
+                        gridRow: row,
+                        gridCol: col,
+                        x: Math.random() * (window.innerWidth - 150),
+                        y: Math.random() * (window.innerHeight - 150),
+                        isDragging: false,
+                        isPlaced: false,
+                        dragOffsetX: 0,
+                        dragOffsetY: 0
+                    };
+                    pieces.push(piece);
+                }
+            }
+
+            // Shuffle pieces
+            pieces.sort(() => Math.random() - 0.5);
+
+            // Draw puzzle pieces
+            renderPieces();
+            drawBoard();
+        }
+
+        function renderPieces() {
+            const container = document.getElementById('piecesContainer');
+            container.innerHTML = '';
+
+            const pieceWidth = BOARD_WIDTH / GRID_SIZE;
+            const pieceHeight = BOARD_HEIGHT / GRID_SIZE;
+
+            pieces.forEach((piece, index) => {
+                if (piece.isPlaced) return;
+
+                const pieceCanvas = document.createElement('canvas');
+                pieceCanvas.width = pieceWidth + 10;
+                pieceCanvas.height = pieceHeight + 10;
+                pieceCanvas.className = 'piece';
+                pieceCanvas.id = piece.id;
+
+                const ctx = pieceCanvas.getContext('2d');
+
+                // Draw piece with border
+                ctx.fillStyle = '#f0f0f0';
+                ctx.fillRect(0, 0, pieceWidth + 10, pieceHeight + 10);
+                ctx.strokeStyle = '#ddd';
+                ctx.lineWidth = 1;
+                ctx.strokeRect(0, 0, pieceWidth + 10, pieceHeight + 10);
+
+                // Draw image portion
+                const srcX = piece.gridCol * pieceWidth;
+                const srcY = piece.gridRow * pieceHeight;
+
+                ctx.drawImage(
+                    puzzleImage,
+                    srcX, srcY, pieceWidth, pieceHeight,
+                    5, 5, pieceWidth, pieceHeight
+                );
+
+                // Add shadow
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+                ctx.shadowBlur = 5;
+                ctx.shadowOffsetX = 2;
+                ctx.shadowOffsetY = 2;
+
+                // Mouse events
+                pieceCanvas.addEventListener('mousedown', (e) => startDrag(e, index));
+                pieceCanvas.addEventListener('touchstart', (e) => startDrag(e, index));
+
+                container.appendChild(pieceCanvas);
+            });
+        }
+
+        function startDrag(e, pieceIndex) {
+            if (pieces[pieceIndex].isPlaced) return;
+
+            const piece = pieces[pieceIndex];
+            const rect = e.target.getBoundingClientRect();
+
+            piece.isDragging = true;
+            piece.dragOffsetX = e.clientX - rect.left;
+            piece.dragOffsetY = e.clientY - rect.top;
+
+            document.addEventListener('mousemove', movePiece);
+            document.addEventListener('mouseup', () => stopDrag(pieceIndex));
+            document.addEventListener('touchmove', movePiece);
+            document.addEventListener('touchend', () => stopDrag(pieceIndex));
+        }
+
+        function movePiece(e) {
+            pieces.forEach((piece) => {
+                if (!piece.isDragging) return;
+                piece.x = e.clientX - piece.dragOffsetX;
+                piece.y = e.clientY - piece.dragOffsetY;
+            });
+        }
+
+        function stopDrag(pieceIndex) {
+            const piece = pieces[pieceIndex];
+            piece.isDragging = false;
+
+            // Check if piece is over the board
+            const boardRect = document.getElementById('boardCanvas').getBoundingClientRect();
+            const pieceWidth = BOARD_WIDTH / GRID_SIZE;
+            const pieceHeight = BOARD_HEIGHT / GRID_SIZE;
+
+            const boardX = boardRect.left;
+            const boardY = boardRect.top;
+
+            const correctX = boardX + piece.gridCol * pieceWidth;
+            const correctY = boardY + piece.gridRow * pieceHeight;
+
+            // Snap to grid if close enough (tolerance: 30px)
+            if (
+                Math.abs(piece.x - correctX) < 30 &&
+                Math.abs(piece.y - correctY) < 30
+            ) {
+                piece.isPlaced = true;
+                placedPieces.add(piece.id);
+                piece.x = correctX;
+                piece.y = correctY;
+            }
+
+            updateProgress();
+            renderPieces();
+            drawBoard();
+        }
+
+        function drawBoard() {
+            const canvas = document.getElementById('boardCanvas');
+            const ctx = canvas.getContext('2d');
+
+            canvas.width = BOARD_WIDTH;
+            canvas.height = BOARD_HEIGHT;
+
+            // Draw background grid
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+            ctx.fillRect(0, 0, BOARD_WIDTH, BOARD_HEIGHT);
+
+            const pieceWidth = BOARD_WIDTH / GRID_SIZE;
+            const pieceHeight = BOARD_HEIGHT / GRID_SIZE;
+
+            // Draw grid lines
+            ctx.strokeStyle = 'rgba(255, 20, 147, 0.2)';
+            ctx.lineWidth = 1;
+
+            for (let i = 0; i <= GRID_SIZE; i++) {
+                // Vertical lines
+                ctx.beginPath();
+                ctx.moveTo(i * pieceWidth, 0);
+                ctx.lineTo(i * pieceWidth, BOARD_HEIGHT);
+                ctx.stroke();
+
+                // Horizontal lines
+                ctx.beginPath();
+                ctx.moveTo(0, i * pieceHeight);
+                ctx.lineTo(BOARD_WIDTH, i * pieceHeight);
+                ctx.stroke();
+            }
+
+            // Draw placed pieces
+            pieces.forEach((piece) => {
+                if (!piece.isPlaced) return;
+
+                const srcX = piece.gridCol * pieceWidth;
+                const srcY = piece.gridRow * pieceHeight;
+
+                ctx.drawImage(
+                    puzzleImage,
+                    srcX, srcY, pieceWidth, pieceHeight,
+                    piece.gridCol * pieceWidth,
+                    piece.gridRow * pieceHeight,
+                    pieceWidth,
+                    pieceHeight
+                );
+            });
+
+            // Draw border
+            ctx.strokeStyle = '#ff1493';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(0, 0, BOARD_WIDTH, BOARD_HEIGHT);
+
+            // Check for victory
+            if (placedPieces.size === pieces.length) {
+                showVictory();
+            }
+        }
+
+        function updateProgress() {
+            const progress = (placedPieces.size / pieces.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('progressText').textContent = Math.round(progress);
+        }
+
+        function showVictory() {
+            document.getElementById('victoryModal').classList.add('show');
+        }
+
+        // Initialize when page loads
+        window.addEventListener('load', () => {
+            if (!imageLoaded) {
+                setTimeout(() => {
+                    if (imageLoaded) initializePuzzle();
+                }, 500);
+            }
+        });
+    </script>
+</body>
+</html>
