@@ -50,8 +50,8 @@
 
         .puzzle-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            grid-template-rows: repeat(4, 1fr);
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
             gap: 0;
             background: rgba(0, 0, 0, 0.2);
             border-radius: 12px;
@@ -219,8 +219,8 @@
     </div>
 
     <script>
-        const GRID_SIZE = 4;
-        const TILE_SIZE = 500 / GRID_SIZE; // 125px per tile
+        const GRID_SIZE = 3;
+        const TILE_SIZE = 500 / GRID_SIZE; // ~167px per tile
         const TOTAL_TILES = GRID_SIZE * GRID_SIZE;
 
         let puzzleImage = new Image();
