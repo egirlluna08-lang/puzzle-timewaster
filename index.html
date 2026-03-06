@@ -15,16 +15,24 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
             min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             padding: 20px;
         }
 
         .container {
-            max-width: 1200px;
-            margin: 0 auto;
+            background: rgba(30, 30, 50, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            border: 2px solid #ff1493;
+            text-align: center;
         }
 
         .header {
-            text-align: center;
             margin-bottom: 30px;
         }
 
@@ -40,88 +48,65 @@
             font-weight: 600;
         }
 
-        .progress {
-            background: rgba(255, 20, 147, 0.2);
-            border-radius: 8px;
-            padding: 10px;
+        .puzzle-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 4px;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 4px;
+            border-radius: 12px;
             margin-bottom: 20px;
-            max-width: 400px;
+            max-width: 500px;
             margin-left: auto;
             margin-right: auto;
+            aspect-ratio: 1;
         }
 
-        .progress-bar {
-            width: 100%;
-            height: 8px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 4px;
-            overflow: hidden;
-            margin-bottom: 5px;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #ff1493 0%, #ff69b4 100%);
-            width: 0%;
-            transition: width 0.3s;
-        }
-
-        .progress-text {
-            font-size: 12px;
-            color: #ff1493;
-            text-align: center;
-        }
-
-        .game-wrapper {
-            position: relative;
-            background: rgba(30, 30, 50, 0.95);
-            border: 2px solid #ff1493;
-            border-radius: 20px;
-            padding: 30px;
-            min-height: 800px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-        }
-
-        .board-area {
-            position: absolute;
-            background: rgba(0, 0, 0, 0.3);
-            border: 3px dashed #ff1493;
-            border-radius: 12px;
-            top: 30px;
-            left: 30px;
-            width: 450px;
-            height: 500px;
-        }
-
-        .board-canvas {
-            border-radius: 12px;
-            cursor: default;
-        }
-
-        .pieces-area {
-            margin-left: 510px;
-            min-height: 600px;
-            position: relative;
-        }
-
-        .piece {
-            position: absolute;
+        .tile {
+            background-size: 500px 500px;
+            background-position: center;
             cursor: grab;
-            user-select: none;
-            transition: box-shadow 0.2s;
-            border-radius: 4px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 20, 147, 0.2);
+            border-radius: 6px;
+            transition: all 0.2s;
+            overflow: hidden;
+            position: relative;
         }
 
-        .piece:hover {
-            box-shadow: 0 6px 16px rgba(255, 20, 147, 0.5);
-            z-index: 100;
+        .tile:hover:not(.empty) {
+            transform: scale(0.98);
+            box-shadow: 0 0 10px rgba(255, 20, 147, 0.3);
         }
 
-        .piece.placed {
+        .tile.movable {
+            cursor: pointer;
+        }
+
+        .tile.empty {
+            background: transparent;
+            border: none;
             cursor: default;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-            opacity: 0.9;
+        }
+
+        .controls {
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #ff1493 0%, #ff69b4 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin: 0 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
         }
 
         .victory-modal {
@@ -132,7 +117,7 @@
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.8);
-            z-index: 2000;
+            z-index: 1000;
             align-items: center;
             justify-content: center;
         }
@@ -191,24 +176,19 @@
             transform: translateY(-2px);
         }
 
-        @media (max-width: 1024px) {
-            .board-area {
-                position: static;
-                width: 100%;
-                height: 400px;
-                margin-bottom: 30px;
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
             }
 
-            .pieces-area {
-                margin-left: 0;
-                display: flex;
-                flex-wrap: wrap;
-                gap: 20px;
-                justify-content: center;
+            .header h1 {
+                font-size: 24px;
             }
 
-            .game-wrapper {
-                min-height: auto;
+            .btn {
+                padding: 10px 16px;
+                font-size: 14px;
+                margin: 5px;
             }
         }
     </style>
@@ -220,21 +200,11 @@
             <p>Complete the puzzle to continue wasting time~</p>
         </div>
 
-        <div class="progress">
-            <div class="progress-bar">
-                <div class="progress-fill" id="progressFill"></div>
-            </div>
-            <div class="progress-text">
-                <span id="progressText">0</span>% complete
-            </div>
+        <div class="controls">
+            <button class="btn" onclick="shufflePuzzle()">Shuffle</button>
         </div>
 
-        <div class="game-wrapper">
-            <div class="board-area">
-                <canvas id="boardCanvas" class="board-canvas"></canvas>
-            </div>
-            <div class="pieces-area" id="piecesArea"></div>
-        </div>
+        <div class="puzzle-grid" id="puzzleGrid"></div>
     </div>
 
     <div class="victory-modal" id="victoryModal">
@@ -247,229 +217,126 @@
 
     <script>
         const GRID_SIZE = 4;
-        const BOARD_WIDTH = 450;
-        const BOARD_HEIGHT = 500;
-        const PIECE_SIZE = BOARD_WIDTH / GRID_SIZE;
+        const TILE_SIZE = 500 / GRID_SIZE; // 125px per tile
+        const TOTAL_TILES = GRID_SIZE * GRID_SIZE;
 
-        let imageLoaded = false;
         let puzzleImage = new Image();
-        let pieces = [];
-        let placedPieces = new Set();
-        let draggedPiece = null;
-        let dragOffsetX = 0;
-        let dragOffsetY = 0;
+        let tiles = [];
+        let emptyPos = TOTAL_TILES - 1; // Empty spot starts at bottom-right
+        let moves = 0;
+        let gameWon = false;
 
+        // Initialize
         puzzleImage.onload = function() {
-            imageLoaded = true;
-            initializePuzzle();
+            initPuzzle();
         };
         puzzleImage.src = 'puzzle-image.jpg';
 
-        function initializePuzzle() {
-            // Create puzzle pieces with random positions
-            for (let row = 0; row < GRID_SIZE; row++) {
-                for (let col = 0; col < GRID_SIZE; col++) {
-                    const piece = {
-                        id: `piece-${row}-${col}`,
-                        gridRow: row,
-                        gridCol: col,
-                        x: Math.random() * 500 + 500,
-                        y: Math.random() * 500 + 100,
-                        isPlaced: false
-                    };
-                    pieces.push(piece);
+        function initPuzzle() {
+            // Create tiles array (0 = empty)
+            tiles = Array.from({length: TOTAL_TILES}, (_, i) => i);
+            shuffleWithSolve();
+            renderPuzzle();
+        }
+
+        function shuffleWithSolve() {
+            // Shuffle but ensure puzzle is solvable
+            for (let i = 0; i < 100; i++) {
+                const neighbors = getNeighbors(emptyPos);
+                const randomNeighbor = neighbors[Math.floor(Math.random() * neighbors.length)];
+                swapTiles(emptyPos, randomNeighbor);
+            }
+        }
+
+        function renderPuzzle() {
+            const grid = document.getElementById('puzzleGrid');
+            grid.innerHTML = '';
+
+            tiles.forEach((tileNum, index) => {
+                const tile = document.createElement('div');
+                tile.className = 'tile';
+
+                if (tileNum === 0) {
+                    tile.classList.add('empty');
+                } else {
+                    // Calculate which part of image this tile shows
+                    const row = Math.floor((tileNum - 1) / GRID_SIZE);
+                    const col = (tileNum - 1) % GRID_SIZE;
+                    const offsetX = (col * TILE_SIZE) / 500 * 100; // percentage
+                    const offsetY = (row * TILE_SIZE) / 500 * 100; // percentage
+
+                    tile.style.backgroundImage = `url('puzzle-image.jpg')`;
+                    tile.style.backgroundPosition = `${offsetX}% ${offsetY}%`;
+                    tile.style.backgroundSize = '500px 500px';
+
+                    tile.classList.add('movable');
+                    tile.addEventListener('click', () => moveTile(index));
+                    tile.title = 'Click to move';
                 }
-            }
 
-            // Shuffle pieces
-            pieces.sort(() => Math.random() - 0.5);
-
-            // Draw initial state
-            renderPieces();
-            drawBoard();
-        }
-
-        function renderPieces() {
-            const container = document.getElementById('piecesArea');
-            container.innerHTML = '';
-
-            pieces.forEach((piece) => {
-                const pieceCanvas = document.createElement('canvas');
-                pieceCanvas.width = PIECE_SIZE;
-                pieceCanvas.height = PIECE_SIZE;
-                pieceCanvas.className = `piece ${piece.isPlaced ? 'placed' : ''}`;
-                pieceCanvas.id = piece.id;
-                pieceCanvas.style.left = piece.x + 'px';
-                pieceCanvas.style.top = piece.y + 'px';
-
-                const ctx = pieceCanvas.getContext('2d');
-
-                // Draw image portion (no white border)
-                const srcX = piece.gridCol * PIECE_SIZE;
-                const srcY = piece.gridRow * PIECE_SIZE;
-
-                // Scale image to fill the puzzle size
-                const scaledImageWidth = (puzzleImage.width / GRID_SIZE) * GRID_SIZE;
-                const scaledImageHeight = (puzzleImage.height / GRID_SIZE) * GRID_SIZE;
-
-                ctx.drawImage(
-                    puzzleImage,
-                    srcX,
-                    srcY,
-                    puzzleImage.width / GRID_SIZE,
-                    puzzleImage.height / GRID_SIZE,
-                    0,
-                    0,
-                    PIECE_SIZE,
-                    PIECE_SIZE
-                );
-
-                // Mouse events
-                pieceCanvas.addEventListener('mousedown', startDrag);
-                pieceCanvas.addEventListener('touchstart', startDrag);
-
-                container.appendChild(pieceCanvas);
-            });
-        }
-
-        function startDrag(e) {
-            const canvas = e.target;
-            const piece = pieces.find(p => p.id === canvas.id);
-
-            if (!piece || piece.isPlaced) return;
-
-            draggedPiece = piece;
-            const rect = canvas.getBoundingClientRect();
-            dragOffsetX = e.clientX - rect.left;
-            dragOffsetY = e.clientY - rect.top;
-
-            canvas.style.cursor = 'grabbing';
-
-            document.addEventListener('mousemove', movePiece);
-            document.addEventListener('mouseup', stopDrag);
-            document.addEventListener('touchmove', movePiece);
-            document.addEventListener('touchend', stopDrag);
-        }
-
-        function movePiece(e) {
-            if (!draggedPiece) return;
-
-            draggedPiece.x = e.clientX - dragOffsetX;
-            draggedPiece.y = e.clientY - dragOffsetY;
-
-            renderPieces();
-        }
-
-        function stopDrag(e) {
-            if (!draggedPiece) return;
-
-            const boardArea = document.querySelector('.board-area');
-            const boardRect = boardArea.getBoundingClientRect();
-
-            const correctX = boardRect.left + draggedPiece.gridCol * PIECE_SIZE;
-            const correctY = boardRect.top + draggedPiece.gridRow * PIECE_SIZE;
-
-            const pieceRect = document.getElementById(draggedPiece.id).getBoundingClientRect();
-            const pieceX = pieceRect.left;
-            const pieceY = pieceRect.top;
-
-            // Snap if close enough (50px tolerance)
-            if (
-                Math.abs(pieceX - correctX) < 50 &&
-                Math.abs(pieceY - correctY) < 50
-            ) {
-                draggedPiece.isPlaced = true;
-                placedPieces.add(draggedPiece.id);
-                draggedPiece.x = correctX - boardArea.getBoundingClientRect().left;
-                draggedPiece.y = correctY - boardArea.getBoundingClientRect().top;
-            }
-
-            draggedPiece = null;
-            document.removeEventListener('mousemove', movePiece);
-            document.removeEventListener('mouseup', stopDrag);
-            document.removeEventListener('touchmove', movePiece);
-            document.removeEventListener('touchend', stopDrag);
-
-            updateProgress();
-            renderPieces();
-            drawBoard();
-        }
-
-        function drawBoard() {
-            const canvas = document.getElementById('boardCanvas');
-            const ctx = canvas.getContext('2d');
-
-            canvas.width = BOARD_WIDTH;
-            canvas.height = BOARD_HEIGHT;
-
-            // Draw background
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
-            ctx.fillRect(0, 0, BOARD_WIDTH, BOARD_HEIGHT);
-
-            // Draw grid lines (faint)
-            ctx.strokeStyle = 'rgba(255, 20, 147, 0.15)';
-            ctx.lineWidth = 1;
-
-            for (let i = 0; i <= GRID_SIZE; i++) {
-                // Vertical
-                ctx.beginPath();
-                ctx.moveTo(i * PIECE_SIZE, 0);
-                ctx.lineTo(i * PIECE_SIZE, BOARD_HEIGHT);
-                ctx.stroke();
-
-                // Horizontal
-                ctx.beginPath();
-                ctx.moveTo(0, i * PIECE_SIZE);
-                ctx.lineTo(BOARD_WIDTH, i * PIECE_SIZE);
-                ctx.stroke();
-            }
-
-            // Draw placed pieces
-            pieces.forEach((piece) => {
-                if (!piece.isPlaced) return;
-
-                const srcX = piece.gridCol * PIECE_SIZE;
-                const srcY = piece.gridRow * PIECE_SIZE;
-
-                ctx.drawImage(
-                    puzzleImage,
-                    srcX,
-                    srcY,
-                    puzzleImage.width / GRID_SIZE,
-                    puzzleImage.height / GRID_SIZE,
-                    piece.gridCol * PIECE_SIZE,
-                    piece.gridRow * PIECE_SIZE,
-                    PIECE_SIZE,
-                    PIECE_SIZE
-                );
+                grid.appendChild(tile);
             });
 
-            // Border
-            ctx.strokeStyle = '#ff1493';
-            ctx.lineWidth = 3;
-            ctx.strokeRect(0, 0, BOARD_WIDTH, BOARD_HEIGHT);
+            checkWin();
+        }
 
-            // Check victory
-            if (placedPieces.size === pieces.length) {
-                showVictory();
+        function getNeighbors(pos) {
+            const neighbors = [];
+            const row = Math.floor(pos / GRID_SIZE);
+            const col = pos % GRID_SIZE;
+
+            if (row > 0) neighbors.push(pos - GRID_SIZE); // up
+            if (row < GRID_SIZE - 1) neighbors.push(pos + GRID_SIZE); // down
+            if (col > 0) neighbors.push(pos - 1); // left
+            if (col < GRID_SIZE - 1) neighbors.push(pos + 1); // right
+
+            return neighbors;
+        }
+
+        function moveTile(index) {
+            if (gameWon) return;
+
+            const neighbors = getNeighbors(emptyPos);
+            if (neighbors.includes(index)) {
+                swapTiles(emptyPos, index);
+                moves++;
+                renderPuzzle();
             }
         }
 
-        function updateProgress() {
-            const progress = (placedPieces.size / pieces.length) * 100;
-            document.getElementById('progressFill').style.width = progress + '%';
-            document.getElementById('progressText').textContent = Math.round(progress);
+        function swapTiles(pos1, pos2) {
+            const temp = tiles[pos1];
+            tiles[pos1] = tiles[pos2];
+            tiles[pos2] = temp;
+            emptyPos = pos2;
         }
 
-        function showVictory() {
-            document.getElementById('victoryModal').classList.add('show');
+        function shufflePuzzle() {
+            if (gameWon) {
+                location.reload();
+                return;
+            }
+            moves = 0;
+            shuffleWithSolve();
+            renderPuzzle();
+        }
+
+        function checkWin() {
+            if (gameWon) return;
+
+            for (let i = 0; i < TOTAL_TILES - 1; i++) {
+                if (tiles[i] !== i + 1) return;
+            }
+
+            if (tiles[TOTAL_TILES - 1] === 0) {
+                gameWon = true;
+                document.getElementById('victoryModal').classList.add('show');
+            }
         }
 
         window.addEventListener('load', () => {
-            if (!imageLoaded) {
-                setTimeout(() => {
-                    if (imageLoaded) initializePuzzle();
-                }, 500);
+            if (puzzleImage.complete) {
+                initPuzzle();
             }
         });
     </script>
